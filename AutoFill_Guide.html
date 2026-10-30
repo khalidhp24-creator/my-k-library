@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My K Library - V24 Auto-Fill Guide</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: 40px auto; padding: 20px; background: #f9f9f9; }
+        .header { background: #2c3e50; color: white; padding: 30px; border-radius: 8px; text-align: center; margin-bottom: 30px; }
+        .section { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 25px; }
+        h1 { margin: 0; font-size: 2.5em; }
+        h2 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .source-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+        .source-card { background: #ecf0f1; padding: 15px; border-radius: 6px; border-left: 5px solid #3498db; }
+        .highlight { color: #e67e22; font-weight: bold; }
+        ul { columns: 2; -webkit-columns: 2; -moz-columns: 2; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>My K Library V24</h1>
+    <p>The Global "Deep Harvest" Bibliographic Engine</p>
+</div>
+
+<div class="section">
+    <h2>New: Two Ways to Harvest</h2>
+    <p>V24 now gives you complete flexibility in how you find your books:</p>
+    <ul>
+        <li><strong>ISBN Search (Barcode)</strong>: The most accurate method for specific editions.</li>
+        <li><strong>Title Search (Manual)</strong>: Instant harvest even when you don't have the ISBN handy.</li>
+    </ul>
+</div>
+
+<div class="section">
+    <h2>Global Data Sources (Marketplace Tier)</h2>
+    <p>In addition to our core library APIs, V24 now scrapes live data from the world's biggest marketplaces:</p>
+    <div class="source-grid">
+        <div class="source-card"><strong>Amazon.com</strong><br>For modern reviews and cover art.</div>
+        <div class="source-card"><strong>eBay.com</strong><br>For hard-to-find and vintage records.</div>
+        <div class="source-card"><strong>AwesomeBooks</strong><br>For international edition tracking.</div>
+        <div class="source-card"><strong>AbeBooks</strong><br>For rare book descriptions and author bios.</div>
+    </div>
+</div>
+
+<div class="section">
+    <h2>Harvested Metadata (30+ Properties)</h2>
+    <p>Our V24 engine cross-references all sources to fill these fields:</p>
+    <ul>
+        <li>Official Title & Subtitle</li>
+        <li>Author & Co-Authors</li>
+        <li>Publisher & Year</li>
+        <li><span class="highlight">Physical Weight</span></li>
+        <li><span class="highlight">Exact Dimensions</span></li>
+        <li>LCCN & OCLC Numbers</li>
+        <li>Series & Subjects</li>
+        <li>Full Book Description</li>
+        <li>Language & Page Count</li>
+        <li>Local High-Res Cover Scans</li>
+    </ul>
+</div>
+
+<div class="section">
+    <h2>How it Works</h2>
+    <ol>
+        <li><strong>Validation</strong>: The engine cleans your input (ISBN or Title).</li>
+        <li><strong>Mult-Tier Search</strong>: Queries Google, then Open Library, then our 4 marketplace scrapers.</li>
+        <li><strong>Data Fusion</strong>: Intelligent logic merges the best data into a single record.</li>
+        <li><strong>Local Imaging</strong>: Covers are downloaded locally to ensure 100% offline access.</li>
+        <li><strong>User Review</strong>: You approve the final data in the V24 Scrolling Review window.</li>
+    </ol>
+</div>
+
+</body>
+</html>

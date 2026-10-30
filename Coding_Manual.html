@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My K Library - Coding Manual</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; color: #333; line-height: 1.6; }
+        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #34495e; margin-top: 30px; }
+        h3 { color: #555; }
+        pre, code { background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px; padding: 10px; font-family: Consolas, monospace; }
+        .highlight { font-weight: bold; color: #e74c3c; }
+        .success { color: #27ae60; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>My K Library: Programmer's Coding Manual (V14 - Branding & Icons)</h1>
+    <p>This manual covers V14, implementing custom application branding and Win32 icon resources.</p>
+
+    <h2>1. Executable Branding (Win32 Icon)</h2>
+    <p>The application icon (displayed in Explorer and the Desktop) is now permanently linked into the <code>LibraryAppVB.exe</code> executable using the <code>/win32icon</code> compiler directive during the build process.</p>
+    <pre>
+vbc.exe ... /win32icon:bookic2.ico ...
+    </pre>
+
+    <h2>2. Dynamic Icon Conversion</h2>
+    <p>To ensure compatibility with the Visual Basic compiler, the original <code>bookic2.png</code> was programmatically downsampled and converted into a standard 32x32 Win32 Icon (<code>.ico</code>) format during the deployment cycle.</p>
+
+    <h2>3. Internal UI Branding</h2>
+    <p>A small branding logo (<code>bookic1.png</code>) is now dynamically loaded into the <code>MainForm</code> next to the navigation menu. This provides a consistent "branded" experience while navigating between libraries.</p>
+
+    <h2>4. Taskbar & Title Bar Icons</h2>
+    <p>The <code>Me.Icon</code> property of the <code>MainForm</code> is set at runtime. This ensures the application icon is visible in the Windows Taskbar and in the top-left corner of the title bar.</p>
+</body>
+</html>

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentation - My K Library Cloud</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg: #f8fafc;
+      --sidebar-bg: #1e293b;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --code-bg: #f1f5f9;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --accent: #8b5cf6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+    
+    /* Docs Sidebar */
+    .docs-nav {
+      width: 280px;
+      background: var(--sidebar-bg);
+      color: #fff;
+      padding: 24px 16px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem; }
+    .nav-group-title { font-size: 0.75rem; text-transform: uppercase; color: #94a3b8; font-weight: 700; letter-spacing: 0.8px; margin-bottom: 8px; }
+    .nav-links { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+    .nav-link { display: block; padding: 8px 12px; color: #cbd5e1; text-decoration: none; font-size: 0.9rem; border-radius: 6px; transition: all 0.15s; }
+    .nav-link:hover { background: #334155; color: #fff; }
+    .back-btn { margin-top: auto; padding: 10px 14px; background: rgba(37, 99, 235, 0.3); color: #93c5fd; border-radius: 6px; text-decoration: none; font-weight: 600; text-align: center; font-size: 0.85rem; border: 1px solid rgba(147, 197, 253, 0.2); }
+    .back-btn:hover { background: rgba(37, 99, 235, 0.5); }
+
+    /* Docs Content */
+    .docs-main { flex: 1; padding: 40px 48px; max-width: 980px; overflow-y: auto; }
+    .doc-section { margin-bottom: 50px; scroll-margin-top: 30px; }
+    h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; color: #0f172a; }
+    h2 { font-size: 1.45rem; font-weight: 700; margin-top: 32px; margin-bottom: 14px; color: #1e293b; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    h3 { font-size: 1.15rem; font-weight: 600; margin-top: 20px; margin-bottom: 8px; color: #334155; }
+    p, li { font-size: 0.96rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }
+    ul, ol { padding-left: 22px; margin-bottom: 16px; }
+
+    /* Cards & Tables */
+    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .table-wrap { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th { background: #f8fafc; padding: 10px 14px; font-size: 0.8rem; font-weight: 600; color: #475569; border-bottom: 1px solid var(--border); }
+    td { padding: 10px 14px; font-size: 0.875rem; border-bottom: 1px solid #f1f5f9; }
+    tr:last-child td { border-bottom: none; }
+    
+    /* Code & Badges */
+    code { font-family: 'JetBrains Mono', monospace; background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; color: #be185d; }
+    pre { background: #1e293b; color: #f8fafc; padding: 16px; border-radius: 8px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.88rem; line-height: 1.5; margin: 16px 0; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+    .badge-admin { background: #dbeafe; color: #1e40af; }
+    .badge-super { background: #fef3c7; color: #92400e; }
+    .badge-user { background: #f1f5f9; color: #475569; }
+    .badge-free { background: #dcfce7; color: #15803d; }
+
+    /* Alert Callouts */
+    .alert { padding: 14px 16px; border-radius: 8px; margin: 16px 0; font-size: 0.92rem; display: flex; gap: 12px; align-items: flex-start; }
+    .alert-info { background: #eff6ff; border-left: 4px solid var(--primary); color: #1e40af; }
+    .alert-success { background: #f0fdf4; border-left: 4px solid var(--success); color: #166534; }
+    .alert-warning { background: #fffbeb; border-left: 4px solid var(--warning); color: #92400e; }
+
+    @media (max-width: 768px) {
+      body { flex-direction: column; }
+      .docs-nav { width: 100%; height: auto; position: relative; }
+      .docs-main { padding: 24px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Sidebar -->
+  <aside class="docs-nav">
+    <div class="brand">
+      <span>📚</span>
+      <span>My K Library Docs</span>
+    </div>
+
+    <div>
+      <div class="nav-group-title">Overview</div>
+      <ul class="nav-links">
+        <li><a href="#architecture" class="nav-link">System Architecture</a></li>
+        <li><a href="#quickstart" class="nav-link">Quick Start</a></li>
+        <li><a href="#cost-limits" class="nav-link">Cost & Free Limits</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="nav-group-title">Features</div>
+      <ul class="nav-links">
+        <li><a href="#isbn-lookups" class="nav-link">ISBN & AI Cataloging</a></li>
+        <li><a href="#mobile-scanner" class="nav-link">Mobile Camera Scanner</a></li>
+        <li><a href="#desktop-sync" class="nav-link">Desktop App Integration</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="nav-group-title">Access & Admin</div>
+      <ul class="nav-links">
+        <li><a href="#user-directory" class="nav-link">User Roles & Security</a></li>
+        <li><a href="#schema" class="nav-link">Database Schema</a></li>
+        <li><a href="#faq" class="nav-link">FAQs & Troubleshooting</a></li>
+      </ul>
+    </div>
+
+    <a href="index.html" class="back-btn">← Back to Library App</a>
+  </aside>
+
+  <!-- Main Documentation Content -->
+  <main class="docs-main">
+    <header class="doc-section">
+      <h1>My K Library Documentation</h1>
+      <p style="font-size: 1.1rem; color: var(--text-muted);">
+        A complete guide to the cloud-native, multi-platform library management system. Runs seamlessly across desktop, web, and mobile devices.
+      </p>
+      <div class="alert alert-success">
+        <div><strong>Status:</strong> Cloud database active on Supabase & deployed globally on Vercel. 100% Free tier architecture ($0.00 / month).</div>
+      </div>
+    </header>
+
+    <!-- 1. System Architecture -->
+    <section id="architecture" class="doc-section">
+      <h2>1. System Architecture</h2>
+      <p>My K Library operates on a modern hybrid architecture connecting three synchronized touchpoints to a central cloud PostgreSQL database:</p>
+      
+      <div class="card">
+        <ul>
+          <li><strong>Cloud PostgreSQL (Supabase):</strong> Managed PostgreSQL database (`my-k-library`, ref: <code>kgvopwljwpeqkaindqbs</code>) with automatic REST API, real-time WebSocket subscriptions, and Row Level Security.</li>
+          <li><strong>Adaptive Web App (Vercel):</strong> Responsive web app (HTML5, Vanilla JS, CSS3) with automatic breakpoint adaptation for desktops (wide table grid) and smartphones (touch feed & camera scanner).</li>
+          <li><strong>Desktop Application (VB.NET / WinForms):</strong> High-performance 32-bit Windows desktop client with offline Jet Access fallback and background HTTP server.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 2. Quick Start -->
+    <section id="quickstart" class="doc-section">
+      <h2>2. Quick Start</h2>
+      <ol>
+        <li><strong>Open the Web App:</strong> Visit the live URL on your desktop or mobile browser.</li>
+        <li><strong>Switch Libraries:</strong> Select between <code>Default Library</code> or custom collections from the top dropdown or sidebar.</li>
+        <li><strong>Instant Search:</strong> Type in the search box to filter in real-time across book title, author, or ISBN.</li>
+        <li><strong>Add a Book:</strong> Click <strong>+ Add Book</strong> to manually enter details or use the <strong>📷 Scan ISBN</strong> feature to auto-fill metadata.</li>
+      </ol>
+    </section>
+
+    <!-- 3. Cost & Free Limits -->
+    <section id="cost-limits" class="doc-section">
+      <h2>3. Running Cost & Free Tier Quotas</h2>
+      <p>The entire setup is engineered to run permanently within the free allowances of cloud providers:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Service</th>
+              <th>Tier</th>
+              <th>Free Allowance</th>
+              <th>Your Current Usage</th>
+              <th>Monthly Cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Supabase</strong></td>
+              <td>Free</td>
+              <td>2 active cloud projects</td>
+              <td>2 projects (`my-k-library` + `1-accounting-db`)</td>
+              <td><span class="badge badge-free">$0.00</span></td>
+            </tr>
+            <tr>
+              <td><strong>Database Storage</strong></td>
+              <td>Free</td>
+              <td>500 MB per project</td>
+              <td>~2.5 MB (&lt; 1% of limit)</td>
+              <td><span class="badge badge-free">$0.00</span></td>
+            </tr>
+            <tr>
+              <td><strong>Vercel</strong></td>
+              <td>Hobby</td>
+              <td>100 GB egress / month</td>
+              <td>&lt; 0.5 GB / month</td>
+              <td><span class="badge badge-free">$0.00</span></td>
+            </tr>
+            <tr>
+              <td><strong>Google Books API</strong></td>
+              <td>Free</td>
+              <td>1,000 – 25,000 req / day</td>
+              <td>10 – 50 req / day</td>
+              <td><span class="badge badge-free">$0.00</span></td>
+            </tr>
+            <tr>
+              <td><strong>Google Gemini AI</strong></td>
+              <td>Free</td>
+              <td>1,500 req / day (15 req/min)</td>
+              <td>5 – 25 req / day</td>
+              <td><span class="badge badge-free">$0.00</span></td>
+            </tr>
+            <tr>
+              <td colspan="4"><strong>TOTAL RECURRING EXPENSE</strong></td>
+              <td><strong style="color:var(--success); font-size:1.1rem;">$0.00 / month</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-warning">
+        <div><strong>Important Maintenance Rule:</strong> Supabase pauses free-tier databases after <strong>7 consecutive days</strong> of inactivity. Interacting with the desktop or web app once a week keeps it permanently active. If paused, restoring takes 1 click in your Supabase dashboard.</div>
+      </div>
+    </section>
+
+    <!-- 4. ISBN & AI Cataloging -->
+    <section id="isbn-lookups" class="doc-section">
+      <h2>4. ISBN Lookups & AI Cataloging</h2>
+      <p>When cataloging books, you can enter or scan an ISBN to automatically pull complete bibliographic details:</p>
+      
+      <div class="card">
+        <h3>🔍 Engine 1: Google Books API (with ISBNSearch fallback)</h3>
+        <p>Queries Google's book repository to fetch the official <strong>Title</strong>, <strong>Author</strong>, <strong>Publisher</strong>, <strong>Publication Year</strong>, and <strong>High-Resolution Cover Art</strong>.</p>
+
+        <h3>🤖 Engine 2: Google Gemini AI (Gemini 2.0 Flash)</h3>
+        <p>Uses AI cataloging to analyze the ISBN and generate detailed metadata including <strong>Subject Tags</strong>, <strong>Page Count</strong>, <strong>Language</strong>, and a complete <strong>Synopsis / Summary</strong>.</p>
+      </div>
+    </section>
+
+    <!-- 5. Mobile Camera Barcode Scanner -->
+    <section id="mobile-scanner" class="doc-section">
+      <h2>5. Mobile Camera Barcode Scanner</h2>
+      <p>The web app includes an integrated camera scanner using HTML5 camera streams:</p>
+      <ul>
+        <li>Works natively in Safari (iOS), Chrome (Android/Windows), and Edge without installing app store packages.</li>
+        <li>Point your smartphone camera at a physical book's EAN-13 barcode.</li>
+        <li>An audible tone confirms detection, stops the camera, and immediately queries Google Books to fill out the catalog form.</li>
+      </ul>
+    </section>
+
+    <!-- 5.1 Desktop Touch Screen Interface -->
+    <section id="touch-interface" class="doc-section">
+      <h2>5.1 Desktop Touch Screen Interface (Kiosks & Surface Tablets)</h2>
+      <p>Designed specifically for desktop touch monitors, all-in-one PCs, and Windows Surface tablets:</p>
+      <div class="card">
+        <ul>
+          <li><strong>One-Tap Mode Switch:</strong> Click or tap <code>🖐️ Touch UI</code> in the top bar or sidebar to toggle between compact mouse mode and spacious touch mode.</li>
+          <li><strong>Touch Kiosk Card Grid:</strong> Transforms dense spreadsheet table rows into large, interactive touch tiles with prominent cover previews and large tap buttons.</li>
+          <li><strong>Enlarged Touch Targets:</strong> All buttons and input fields expand to 48px – 56px with generous spacing to eliminate accidental mis-taps.</li>
+          <li><strong>Auto-Detection:</strong> Automatically activates touch mode if a touch-screen device is detected via hardware sensor query.</li>
+          <li><strong>WinForms Native Support:</strong> The Windows desktop executable (<code>LibraryAppVB.exe</code>) also includes a matching <code>🖐️ Touch UI</code> toggle in its sidebar that enlarges grid rows to 50px with 12pt fonts.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 6. User Roles & Access Control -->
+    <section id="user-directory" class="doc-section">
+      <h2>6. User Roles & Security Policy</h2>
+      <p>My K Library enforces multi-tiered Role-Based Access Control (RBAC). In accordance with organizational security policies, credentials and sensitive user records are decoupled from public documentation.</p>
+
+      <div class="alert alert-info">
+        <div><strong>Confidential Credentials Storage:</strong> All provisioned staff and reader credentials are saved securely in your project's local directory (<code>credentials.csv</code> and <code>credentials.txt</code>). To safeguard the system, passwords are never exposed on client login pages or public web documentation.</div>
+      </div>
+
+      <div class="card">
+        <h3>Defined Role Hierarchy</h3>
+        <ul>
+          <li><strong>SuperAdmin (System Administrator):</strong> Complete administrative authority across all libraries, schema configurations, collection provisioning, and user role assignments.</li>
+          <li><strong>Admin (Librarians):</strong> Comprehensive library operations, adding/editing books, managing book metadata, managing collections, and handling circulation desk workflows.</li>
+          <li><strong>User / Cataloger:</strong> Catalog management permissions including barcode scanning, Google Books ISBN metadata fetching, and updating book status.</li>
+          <li><strong>User / Reader & Guest:</strong> Read-only access to browse, search, filter catalogs, and launch online e-book readers without editing permissions.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Authentication & Security Architecture</h3>
+        <p>User accounts are securely verified against the cloud PostgreSQL <code>app_users</code> table. Session states are managed with isolated local/session storage. Administrators may provision new accounts, update roles, or rotate passwords at any time via the database or desktop management suite.</p>
+      </div>
+    </section>
+
+    <!-- 7. Database Schema Reference -->
+    <section id="schema" class="doc-section">
+      <h2>7. Database Schema Reference</h2>
+      <p>The Supabase PostgreSQL database consists of 5 relational tables:</p>
+      <pre>
+-- 1. Libraries (Collections)
+CREATE TABLE libraries (
+    name TEXT PRIMARY KEY,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. Book Categories (369 Genres)
+CREATE TABLE book_categories (
+    id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL
+);
+
+-- 3. Books Table
+CREATE TABLE books (
+    id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+    library_name TEXT REFERENCES libraries(name),
+    title TEXT NOT NULL,
+    author TEXT,
+    author2 TEXT,
+    pages INTEGER,
+    pub_year INTEGER,
+    publisher TEXT,
+    isbn TEXT,
+    copy_num INTEGER DEFAULT 1,
+    series TEXT,
+    cover_path TEXT,
+    back_path TEXT,
+    genre TEXT,
+    description TEXT,
+    language TEXT,
+    subjects TEXT,
+    category_id BIGINT REFERENCES book_categories(id),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4. Application Settings
+CREATE TABLE app_settings (
+    key_name TEXT PRIMARY KEY,
+    setting_value TEXT
+);
+
+-- 5. Application Users
+CREATE TABLE app_users (
+    id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+    username TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'User'
+);</pre>
+    </section>
+
+    <!-- 8. FAQs -->
+    <section id="faq" class="doc-section">
+      <h2>8. FAQs & Troubleshooting</h2>
+      
+      <div class="card">
+        <h3>Q: Can I add a shortcut to my smartphone home screen?</h3>
+        <p><strong>Yes!</strong> In Safari (iPhone), tap the <strong>Share</strong> button and choose <strong>Add to Home Screen</strong>. In Chrome (Android), tap the three dots menu and choose <strong>Install App</strong> or <strong>Add to Home screen</strong>. It will open like a standalone native app.</p>
+      </div>
+
+      <div class="card">
+        <h3>Q: What if camera scanning doesn't start on mobile?</h3>
+        <p>Make sure you granted camera permissions to the browser. Under iOS Settings &gt; Safari &gt; Camera, ensure it is set to "Allow" or "Ask".</p>
+      </div>
+
+      <div class="card">
+        <h3>Q: Are changes on the web visible immediately in the desktop app?</h3>
+        <p>Yes. Both connect to the same Supabase cloud database, meaning additions or edits made on your phone appear across all connected clients.</p>
+      </div>
+    </section>
+  </main>
+
+</body>
+</html>

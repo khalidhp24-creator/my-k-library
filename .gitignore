@@ -1,0 +1,9 @@
+.vercel
+.env*
+credentials.*
+*.csv
+credentials.txt
+
+.vs/
+bin/
+obj/

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My K Library - UI Components Manual</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; color: #333; line-height: 1.6; }
+        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #34495e; margin-top: 30px; }
+        h3 { color: #555; }
+        pre, code { background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px; padding: 10px; font-family: Consolas, monospace; }
+        .highlight { font-weight: bold; color: #e74c3c; }
+    </style>
+</head>
+<body>
+    <h1>My K Library: Programmer's UI Coding Manual (V15 - Redesign)</h1>
+    <p>This manual covers the UI Components Redesign for V15, including resolution scaling, modern components, and layout persistence.</p>
+
+    <h2>1. Resolution Manager</h2>
+    <p>The UI relies on <code>resolutionMode</code> stored in the <code>Settings</code> table (Small, Medium, Large). When initialized, <code>ApplyResolutionSize()</code> configures the main window dimensions, and scales the base font up/down dynamically. Buttons generated via <code>CreateAutoBtn</code> pull height logic and font scaling from this specific mode.</p>
+
+    <h2>2. Dynamic FlowLayout Buttons</h2>
+    <p>All toolbars (Header, Welcome Actions, Library Actions, Scan Row) have been upgraded to <code>FlowLayoutPanel</code> structures. Buttons configure <code>AutoSize = True</code> and specific <code>Padding</code> metrics so text never gets clipped regardless of language or screen width.</p>
+
+    <h2>3. Z-Index and Docking Flow</h2>
+    <p>The DataGridView bugs encountered during refactoring were deeply tied to WinForms internal Z-Index docking algorithms.</p>
+    <ul>
+        <li><code>SendToBack()</code> forces top-docked panels (like nav row) to secure vertical space first.</li>
+        <li><code>BringToFront()</code> forces the core <code>pnlGridArea</code> and <code>dgvBooks</code> to evaluate <b>last</b>, allowing them to perfectly consume the remaining client screen space without hiding behind standard panels.</li>
+    </ul>
+
+    <h2>4. Visual Studio WinForms Designer</h2>
+    <p>We introduced MSBuild `.vbproj` integration. For Visual Studio to load the designer accurately without splitting the <code>Program.vb</code> file into two, the <code>Module Program</code> has been relocated to the <b>bottom</b> of the file, allowing <code>MainForm</code> to act as the primary graphical type for designer tools.</p>
+    <h2>5. UI Component Coding System Index</h2>
+    <p>Each GUI component initialized in <code>Program.vb</code> is tagged with a universal <code>CODE-XXXXX</code> marker to make component modifications and stylistic overrides globally searchable across visual and logical modules.</p>
+    <table>
+        <tr><th>Code Tag</th><th>Component / Element Description</th></tr>
+        <tr><td>CODE-00001</td><td>Application Header & Logo Block</td></tr>
+        <tr><td>CODE-00002</td><td>Main Navigation Dropdown (lblNav, cmbNavigation)</td></tr>
+        <tr><td>CODE-00003</td><td>Global Application Settings & Export Buttons Container</td></tr>
+        <tr><td>CODE-00004</td><td>Grid Style Config Toolbar Action</td></tr>
+        <tr><td>CODE-00005</td><td>Harvest Covers Action Button</td></tr>
+        <tr><td>CODE-00006</td><td>Export CSV Database Action</td></tr>
+        <tr><td>CODE-00007</td><td>Browser Web Server UI Launcher</td></tr>
+        <tr><td>CODE-00008</td><td>Scale Fonts Engine Actions</td></tr>
+        <tr><td>CODE-00009</td><td>User Settings Configuration Launcher</td></tr>
+        <tr><td>CODE-00010</td><td>Statistical Dashboard Title & Base Metrics Card</td></tr>
+        <tr><td>CODE-00011</td><td>Realtime Additions Scrolling Ticker</td></tr>
+        <tr><td>CODE-00012</td><td>Welcome Screen Action Panel (Library Select Dropdown)</td></tr>
+        <tr><td>CODE-00013</td><td>Library Management Buttons Group (Add, Rename, Delete, Merge)</td></tr>
+        <tr><td>CODE-00014</td><td>Main View Area Layout Container (pnlLibrary)</td></tr>
+        <tr><td>CODE-00015</td><td>Write Lock Authentication Mechanism & Current Book Selector</td></tr>
+        <tr><td>CODE-00016</td><td>Direct Record Action Row (Add, Edit, Delete, Search Books)</td></tr>
+        <tr><td>CODE-00017</td><td>ISBN Hardware Scanner Implementation Input Row</td></tr>
+        <tr><td>CODE-00018</td><td>Gemini AI Smart Metadata Lookup Trigger</td></tr>
+        <tr><td>CODE-00019</td><td>Core Database Record DataGridView Component Layer</td></tr>
+        <tr><td>CODE-00020</td><td>Image Previews Dual-Sidebar Block (Cover / Back Graphics)</td></tr>
+    </table>
+</body>
+</html>

@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>My K Library - Cloud</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- HTML5 QR / Barcode Scanner -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+</head>
+<body>
+
+<!-- Login & Authentication Wall Screen -->
+<div id="loginScreen" class="auth-screen">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-logo">📚</div>
+      <h1 class="auth-title">My K Library</h1>
+      <p class="auth-subtitle">Cloud Web Portal & Management System</p>
+    </div>
+
+    <!-- Login Form -->
+    <form id="loginForm" class="auth-form" onsubmit="return false;">
+      <div class="auth-error" id="loginError" style="display:none;"></div>
+
+      <div class="form-group">
+        <label for="loginUsername" class="auth-label">Username</label>
+        <div class="input-icon-wrap">
+          <span class="input-icon">👤</span>
+          <input type="text" id="loginUsername" class="auth-input" placeholder="Enter username" required autocomplete="username" autofocus>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="loginPassword" class="auth-label">Password</label>
+        <div class="input-icon-wrap">
+          <span class="input-icon">🔒</span>
+          <input type="password" id="loginPassword" class="auth-input" placeholder="Enter password" required autocomplete="current-password">
+          <button type="button" id="btnTogglePassword" class="btn-toggle-pw" title="Show/Hide Password">👁️</button>
+        </div>
+      </div>
+
+      <div class="auth-options">
+        <label class="remember-label">
+          <input type="checkbox" id="rememberMe" checked>
+          <span>Keep me signed in</span>
+        </label>
+        <a href="docs.html" target="_blank" class="auth-docs-link">Documentation 📄</a>
+      </div>
+
+      <button type="submit" id="btnLoginSubmit" class="btn-auth-submit">
+        <span id="btnLoginText">Sign In to Library</span>
+        <span id="btnLoginSpinner" class="spinner-inline" style="display:none;">⏳</span>
+      </button>
+    </form>
+
+    <!-- Live Backend Server State Indicator -->
+    <div class="backend-state-card" id="backendStateCard">
+      <div class="state-card-header">
+        <div class="state-title-wrap">
+          <span class="pulse-indicator online" id="statePulseDot"></span>
+          <span class="state-card-title">BACKEND SERVER STATE</span>
+        </div>
+        <button type="button" id="btnRefreshState" class="btn-refresh-state" title="Refresh Ping & Health">🔄 Refresh</button>
+      </div>
+      <div class="state-metrics">
+        <div class="metric-row">
+          <span class="metric-label">Cloud Backend:</span>
+          <span class="metric-val" id="metricBackend">Supabase PostgreSQL (eu-west-1)</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">API Status & Ping:</span>
+          <span class="metric-val highlight" id="metricPing"><span class="badge-status online">🟢 Online</span> (checking...)</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">Database Health:</span>
+          <span class="metric-val" id="metricDbHealth">Loading library stats...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="app" class="app-layout">
+  <!-- Desktop Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <span class="brand-icon">📚</span>
+        <div>
+          <h1 class="brand-title">K-LIBRARY</h1>
+          <span class="brand-badge">Cloud v2.1</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <label class="sidebar-label">ACTIVE LIBRARY</label>
+      <div class="select-wrapper">
+        <select id="librarySelect" class="form-select"></select>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-tab="catalog">
+        <span class="nav-icon">📖</span> All Books
+      </a>
+      <a href="#" class="nav-item" id="btnSidebarEbooks">
+        <span class="nav-icon">📱</span> E-Books Bookshelf
+      </a>
+      <a href="#" class="nav-item" id="btnSidebarScan">
+        <span class="nav-icon">📷</span> Scan Barcode
+      </a>
+      <a href="#" class="nav-item" id="btnSidebarAdd">
+        <span class="nav-icon">➕</span> Add New Book
+      </a>
+      <a href="#" class="nav-item" id="btnSidebarLibraries">
+        <span class="nav-icon">📂</span> Manage Libraries
+      </a>
+      <a href="#" class="nav-item" id="btnSidebarTouch">
+        <span class="nav-icon">🖐️</span> <span id="sidebarTouchText">Touch Screen UI</span>
+      </a>
+      <a href="docs.html" class="nav-item" target="_blank">
+        <span class="nav-icon">📄</span> Documentation
+      </a>
+    </nav>
+
+    <div class="sidebar-section category-section">
+      <label class="sidebar-label">GENRES & CATEGORIES</label>
+      <div class="category-list" id="categoryList">
+        <div class="category-item active" data-cat="">All Genres</div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="status-indicator">
+        <span class="dot online"></span>
+        <span id="syncStatus">Cloud Synced</span>
+      </div>
+      <div class="user-meta" id="userMeta">Role: SuperAdmin</div>
+      <button type="button" class="btn-sidebar-logout" id="btnSidebarLogout" title="Sign Out of Library">
+        <span>🚪</span> Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+    <!-- Top Bar Header -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle Menu">☰</button>
+        <div class="page-title-group">
+          <h2 class="current-library-title" id="currentLibraryTitle">Default Library</h2>
+          <span class="breadcrumbs" id="statsSubtitle">Loading catalog...</span>
+        </div>
+      </div>
+
+      <div class="topbar-center">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" placeholder="Search by Title, Author, ISBN or Barcode (e.g. 622...)..." autocomplete="off">
+          <button id="clearSearchBtn" class="clear-search-btn" style="display:none;">✕</button>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <button class="btn btn-secondary" id="btnTouchToggle" title="Toggle Touch Screen UI Mode">
+          <span>🖐️</span> <span class="btn-text" id="touchToggleText">Touch UI</span>
+        </button>
+        <a href="docs.html" class="btn btn-secondary" target="_blank" style="text-decoration:none;">
+          <span>📄</span> <span class="btn-text">Docs</span>
+        </a>
+        <button class="btn btn-primary" id="btnTopAdd">
+          <span>➕</span> <span class="btn-text">Add Book</span>
+        </button>
+        <button class="btn btn-secondary" id="btnTopScan">
+          <span>📷</span> <span class="btn-text">Scan ISBN</span>
+        </button>
+        <button class="btn btn-outline-danger" id="btnTopLogout" title="Sign Out">
+          <span>🚪</span> <span class="btn-text">Sign Out</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Mobile Subheader / Filter Bar -->
+    <div class="mobile-filter-bar">
+      <div class="mobile-lib-selector">
+        <select id="mobileLibrarySelect" class="form-select"></select>
+      </div>
+      <div class="category-pills" id="categoryPills">
+        <button class="pill active" data-cat="">All</button>
+      </div>
+    </div>
+
+    <!-- Stats Ribbon -->
+    <section class="stats-ribbon">
+      <div class="stat-card">
+        <div class="stat-icon-wrap bg-blue">📚</div>
+        <div class="stat-info">
+          <span class="stat-label">TOTAL BOOKS</span>
+          <span class="stat-value" id="statTotalBooks">0</span>
+        </div>
+      </div>
+      <div class="stat-card" id="statEbooksCard" style="cursor: pointer;" title="Click to view E-Books Bookshelf">
+        <div class="stat-icon-wrap" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">📱</div>
+        <div class="stat-info">
+          <span class="stat-label">E-BOOKS SHELF</span>
+          <span class="stat-value" id="statEbooksCount" style="color: #10b981;">0</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrap bg-green">🏷️</div>
+        <div class="stat-info">
+          <span class="stat-label">CATEGORIES</span>
+          <span class="stat-value" id="statCategories">0</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrap bg-purple">☁️</div>
+        <div class="stat-info">
+          <span class="stat-label">SUPABASE HOST</span>
+          <span class="stat-value" style="font-size: 0.95rem;">Active & Synced</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main View: Book Feed / Grid -->
+    <div class="catalog-container">
+      <!-- Loading & Empty States -->
+      <div id="loadingIndicator" class="loading-state">
+        <div class="spinner"></div>
+        <p>Connecting to Supabase cloud...</p>
+      </div>
+
+      <div id="emptyState" class="empty-state" style="display:none;">
+        <span class="empty-icon">📖</span>
+        <h3>No books found</h3>
+        <p>No records matched your search or category filter in this library.</p>
+        <button class="btn btn-primary" id="btnEmptyAdd">Add First Book</button>
+      </div>
+
+      <!-- Desktop Data Grid (Shown on >= 768px in Mouse Mode) -->
+      <div class="desktop-grid-wrapper" id="desktopGridWrapper" style="display:none;">
+        <table class="book-table" id="bookTable">
+          <thead>
+            <tr>
+              <th style="width: 50px;">Cover</th>
+              <th>Title</th>
+              <th>Author</th>
+              <th>Category</th>
+              <th>Year</th>
+              <th>ISBN</th>
+              <th style="width: 140px; text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="bookTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Desktop Touch Kiosk Grid (Shown on >= 768px in Touch Mode) -->
+      <div class="touch-kiosk-grid" id="touchKioskGrid" style="display:none;"></div>
+
+      <!-- Mobile Book Card Feed (Shown on < 768px) -->
+      <div class="mobile-card-feed" id="mobileCardFeed" style="display:none;"></div>
+    </div>
+  </main>
+</div>
+
+<!-- Mobile Bottom Navigation Bar -->
+<nav class="mobile-bottom-nav">
+  <button class="bottom-nav-item active" id="navMobileBooks">
+    <span class="bottom-icon">📚</span>
+    <span>Books</span>
+  </button>
+  <button class="bottom-nav-item" id="navMobileScan">
+    <span class="bottom-icon">📷</span>
+    <span>Scan</span>
+  </button>
+  <button class="bottom-nav-item primary-action" id="navMobileAdd">
+    <span class="bottom-icon-plus">➕</span>
+  </button>
+  <button class="bottom-nav-item" id="navMobileLibs">
+    <span class="bottom-icon">📂</span>
+    <span>Libraries</span>
+  </button>
+</nav>
+
+<!-- MODAL 1: Book Editor / Details Modal -->
+<div class="modal-overlay" id="bookModal" style="display:none;">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 id="modalBookTitle">Add New Book</h3>
+      <button class="modal-close-btn" id="modalCloseBtn">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      <form id="bookForm" autocomplete="off">
+        <input type="hidden" id="editBookId" value="">
+
+        <div class="form-tabs">
+          <button type="button" class="tab-btn active" data-tab="tabBasic">Basic Info</button>
+          <button type="button" class="tab-btn" data-tab="tabDetails">Publishing & Tech</button>
+          <button type="button" class="tab-btn" data-tab="tabMedia">📸 Covers & Scanned Pages</button>
+          <button type="button" class="tab-btn" data-tab="tabEbook">📱 E-Book & Reader</button>
+        </div>
+
+        <!-- Tab 1: Basic Info -->
+        <div class="tab-panel active" id="tabBasic">
+          <div class="form-group">
+            <label for="bookTitle">Title *</label>
+            <input type="text" id="bookTitle" class="form-control" required placeholder="e.g. C++ How to Program">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label for="bookAuthor">Primary Author *</label>
+              <input type="text" id="bookAuthor" class="form-control" required placeholder="e.g. Paul J. Deitel">
+            </div>
+            <div class="form-group col-6">
+              <label for="bookCategory">Category / Genre</label>
+              <select id="bookCategory" class="form-control"></select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label for="bookISBN">ISBN / Barcode (e.g. 978... or Egypt 622...)</label>
+              <input type="text" id="bookISBN" class="form-control" placeholder="e.g. 9780132465403 or 6221234567890">
+            </div>
+            <div class="form-group col-6">
+              <label for="bookLibrary">Library Collection</label>
+              <select id="bookLibrary" class="form-control"></select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Publishing & Tech -->
+        <div class="tab-panel" id="tabDetails">
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label for="bookPublisher">Publisher</label>
+              <input type="text" id="bookPublisher" class="form-control" placeholder="e.g. Prentice Hall">
+            </div>
+            <div class="form-group col-6">
+              <label for="bookPubYear">Publication Year</label>
+              <input type="number" id="bookPubYear" class="form-control" placeholder="e.g. 2010" min="1000" max="2100">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-4">
+              <label for="bookPages">Page Count</label>
+              <input type="number" id="bookPages" class="form-control" placeholder="e.g. 1104">
+            </div>
+            <div class="form-group col-4">
+              <label for="bookLanguage">Language</label>
+              <input type="text" id="bookLanguage" class="form-control" placeholder="e.g. en, ar, fr">
+            </div>
+            <div class="form-group col-4">
+              <label for="bookSeries">Series</label>
+              <input type="text" id="bookSeries" class="form-control" placeholder="Optional series name">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="bookSubjects">Subjects / Tags</label>
+            <input type="text" id="bookSubjects" class="form-control" placeholder="Comma separated subjects">
+          </div>
+        </div>
+
+        <!-- Tab 3: Covers & Scanned Pages -->
+        <div class="tab-panel" id="tabMedia">
+          <div class="covers-grid-section">
+            <!-- Front Cover Card -->
+            <div class="cover-card-box">
+              <div class="cover-card-header">
+                <span class="cover-type-badge">📖 Front Cover (الغلاف الأمامي)</span>
+                <button type="button" class="btn-text-danger" id="btnClearFrontCover" title="Remove Front Cover">✕ Remove</button>
+              </div>
+              <div class="cover-card-preview-wrap">
+                <img id="coverPreviewImg" src="" alt="Front Cover Preview" class="cover-thumb-preview" style="display:none;" onerror="this.style.display='none'">
+                <div id="coverPlaceholderBox" class="cover-placeholder-box">
+                  <span>📖</span>
+                  <small>No front cover selected</small>
+                </div>
+              </div>
+              <input type="url" id="bookCoverUrl" class="form-control form-control-sm" placeholder="Front cover URL (https://...)">
+              <div class="cover-card-actions">
+                <button type="button" class="btn btn-warning btn-sm" id="btnScanFrontCoverModal">
+                  📷 Scan Front Cover
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnUploadFrontCoverModal">
+                  📁 Upload
+                </button>
+                <input type="file" id="frontCoverFileInput" accept="image/*" style="display:none;">
+              </div>
+            </div>
+
+            <!-- Back Cover Card -->
+            <div class="cover-card-box">
+              <div class="cover-card-header">
+                <span class="cover-type-badge back">📄 Back Cover (الغلاف الخلفي)</span>
+                <button type="button" class="btn-text-danger" id="btnClearBackCover" title="Remove Back Cover">✕ Remove</button>
+              </div>
+              <div class="cover-card-preview-wrap">
+                <img id="backPreviewImg" src="" alt="Back Cover Preview" class="cover-thumb-preview" style="display:none;" onerror="this.style.display='none'">
+                <div id="backPlaceholderBox" class="cover-placeholder-box">
+                  <span>📄</span>
+                  <small>No back cover selected</small>
+                </div>
+              </div>
+              <input type="url" id="bookBackUrl" class="form-control form-control-sm" placeholder="Back cover URL (https://...)">
+              <div class="cover-card-actions">
+                <button type="button" class="btn btn-warning btn-sm" id="btnScanBackCoverModal">
+                  📄 Scan Back Cover
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnUploadBackCoverModal">
+                  📁 Upload
+                </button>
+                <input type="file" id="backCoverFileInput" accept="image/*" style="display:none;">
+              </div>
+            </div>
+          </div>
+
+          <!-- Additional Scanned Pages Gallery -->
+          <div class="scanned-pages-section">
+            <div class="scanned-pages-header">
+              <div>
+                <h4 style="margin:0; font-size:0.95rem; color:#1e293b;">📑 Scanned Pages & Index (الصفحات والفهرس)</h4>
+                <small style="color:#64748b;">Scan table of contents, introduction, sample pages, or illustration plates</small>
+              </div>
+              <div class="scanned-pages-btn-group">
+                <button type="button" class="btn btn-outline btn-sm" id="btnScanNewPageModal">
+                  <span>➕ 📷</span> Scan Page
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnUploadNewPagesModal">
+                  <span>📁</span> Upload Pages
+                </button>
+                <input type="file" id="pagesFileInput" accept="image/*" multiple style="display:none;">
+              </div>
+            </div>
+
+            <div id="scannedPagesGalleryGrid" class="scanned-pages-gallery-grid">
+              <div class="no-pages-hint" id="noPagesHint">No extra pages scanned yet. Click "Scan Page" or "Upload Pages".</div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top:16px;">
+            <label for="bookDescription">Summary / Description (ملخص ونبذة الكتاب)</label>
+            <textarea id="bookDescription" class="form-control" rows="4" placeholder="Book synopsis or catalog notes... (Tip: Scanning back cover with AI auto-fills this!)"></textarea>
+          </div>
+        </div>
+
+        <!-- Tab 4: E-Book & Online Reader -->
+        <div class="tab-panel" id="tabEbook">
+          <div class="form-group" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px 16px; margin-bottom:16px;">
+            <label class="remember-label" style="font-size:0.95rem; font-weight:700; color:#1e293b; cursor:pointer;">
+              <input type="checkbox" id="bookIsEbook">
+              <span>📱 Classify as Digital E-Book / Free Online Resource</span>
+            </label>
+            <p style="font-size:0.8rem; color:#64748b; margin-top:4px; margin-left:24px;">
+              Files are not hosted on your server. Instead, readers can read the book freely via an external online reader or public repository.
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label for="bookReadingUrl">Free Online Reading Link (URL) 🌐</label>
+            <div class="input-action-group">
+              <input type="url" id="bookReadingUrl" class="form-control" placeholder="https://www.gutenberg.org/ebooks/132 or PDF/Archive.org URL">
+              <a href="#" id="btnTestReadingUrl" target="_blank" class="btn btn-secondary" style="display:none; text-decoration:none;">↗ Open Link</a>
+            </div>
+            <small style="color:var(--text-muted); font-size:0.78rem; display:block; margin-top:5px;">
+              Works with Project Gutenberg, Open Library, Internet Archive, arXiv, MIT Press, or direct PDFs.
+            </small>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label for="bookEbookFormat">Format / Reader Type</label>
+              <select id="bookEbookFormat" class="form-control">
+                <option value="EPUB / Web">EPUB / Web Reader</option>
+                <option value="PDF / Online">PDF / Online Document</option>
+                <option value="Interactive HTML">Interactive HTML</option>
+                <option value="Archive.org Reader">Archive.org Reader</option>
+                <option value="Audiobook / Web">Audiobook / Web Stream</option>
+              </select>
+            </div>
+            <div class="form-group col-6">
+              <label for="bookAccessRights">Access / License</label>
+              <select id="bookAccessRights" class="form-control">
+                <option value="Public Domain">Public Domain (Free)</option>
+                <option value="Creative Commons">Creative Commons (Open Access)</option>
+                <option value="Free Web Access">Free Web Access</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="modalCancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="modalSaveBtn">💾 Save to Cloud</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 2: Camera Scanner & Auto-Lookup Modal -->
+<div class="modal-overlay" id="scannerModal" style="display:none;">
+  <div class="modal-card scanner-card">
+    <div class="modal-header">
+      <h3>📷 Barcode Scanner & ISBN Auto-Fill</h3>
+      <button class="modal-close-btn" id="scannerCloseBtn">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      <!-- Live Camera Viewport -->
+      <div class="camera-viewport-container">
+        <div id="interactiveScanner" class="scanner-viewport"></div>
+        <div class="scanner-status-badge" id="scannerCameraStatus">Camera initializing...</div>
+        <div class="camera-controls-bar">
+          <button type="button" class="btn btn-warning btn-sm" id="btnScanCoverAi" title="Open full-screen camera to scan book cover">
+            <span>📷</span> Fullscreen Cover AI
+          </button>
+          <button type="button" class="btn btn-warning btn-sm" id="btnScanBackAi" title="Open full-screen camera to scan back cover & summary">
+            <span>📄</span> Back-Cover AI
+          </button>
+          <button type="button" class="btn btn-outline btn-sm" id="btnUploadCoverAi" title="Upload a cover photo">
+            <span>📁</span> Upload
+          </button>
+          <input type="file" id="coverFileInput" accept="image/*" style="display:none;">
+        </div>
+      </div>
+
+      <!-- Manual Input Option -->
+      <div class="scanner-input-section">
+        <label for="scanInputISBN">Or type / paste ISBN or Market Barcode (Egypt 622...):</label>
+        <div class="input-action-group">
+          <input type="text" id="scanInputISBN" class="form-control" placeholder="Scan or enter ISBN / Barcode (e.g. 978... or 622...)">
+          <button class="btn btn-success" id="btnTriggerGoogleLookup">🔍 Google Lookup</button>
+          <button class="btn btn-purple" id="btnTriggerAiLookup">🤖 Gemini AI</button>
+        </div>
+        <div id="lookupFeedback" class="lookup-feedback"></div>
+        <div id="aiWarningBanner" class="ai-warning-banner" style="display:none;" dir="rtl">
+          <span class="warning-icon">⚠️</span>
+          <span id="aiWarningText">لم يتم العثور على بيانات مؤكدة لهذا الرقم، يرجى إدخال البيانات يدوياً أو مسح الغلاف</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 3: Manage Libraries Modal -->
+<div class="modal-overlay" id="librariesModal" style="display:none;">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>📂 Manage Library Collections</h3>
+      <button class="modal-close-btn" id="librariesCloseBtn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="add-lib-group">
+        <input type="text" id="newLibName" class="form-control" placeholder="New library name...">
+        <button class="btn btn-primary" id="btnCreateLib">Create</button>
+      </div>
+      <ul class="lib-list" id="librariesList"></ul>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+
+<!-- MODAL: Full-Screen Camera Viewfinder for Cover & Multi-Page Scanning -->
+<div id="fullscreenCameraModal" class="fullscreen-camera-overlay" style="display:none;">
+  <video id="fullscreenVideo" autoplay playsinline muted></video>
+  <canvas id="fullscreenCanvas" style="display:none;"></canvas>
+
+  <!-- Framing guide & reticle -->
+  <div class="camera-reticle-wrap">
+    <div class="camera-reticle-box">
+      <div class="reticle-corner top-left"></div>
+      <div class="reticle-corner top-right"></div>
+      <div class="reticle-corner bottom-left"></div>
+      <div class="reticle-corner bottom-right"></div>
+      <div class="reticle-label" id="cameraReticleLabel">📖 وجه الكاميرا نحو الغلاف / Align Book within Frame</div>
+    </div>
+  </div>
+
+  <!-- Top Glassmorphic Navigation -->
+  <div class="camera-header-bar">
+    <button type="button" class="btn-cam-icon" id="btnCloseFullscreenCam" title="Close Camera">✕</button>
+    
+    <div class="camera-mode-switcher">
+      <button type="button" class="cam-mode-btn active" data-mode="front" id="btnModeFront">📖 Front Cover</button>
+      <button type="button" class="cam-mode-btn" data-mode="back" id="btnModeBack">📄 Back Cover</button>
+      <button type="button" class="cam-mode-btn" data-mode="page" id="btnModePage">📑 Page Scan</button>
+    </div>
+
+    <div class="camera-header-actions">
+      <button type="button" class="btn-cam-icon" id="btnToggleTorch" title="Toggle Flashlight">⚡</button>
+      <button type="button" class="btn-cam-icon" id="btnFlipCamera" title="Flip Camera">🔄</button>
+    </div>
+  </div>
+
+  <!-- Realtime Status Overlay -->
+  <div class="camera-status-overlay" id="cameraProcessingOverlay" style="display:none;">
+    <div class="camera-spinner"></div>
+    <div class="camera-status-text" id="cameraProcessingText">جاري تحليل الغلاف بالذكاء الاصطناعي...</div>
+  </div>
+
+  <!-- Bottom Glassmorphic Control Bar -->
+  <div class="camera-bottom-bar">
+    <button type="button" class="camera-gallery-pill" id="btnViewScannedGallery" title="View Scanned Pages">
+      <span class="gallery-icon">📑</span>
+      <span id="scannedPagesBadge">0 Pages</span>
+    </button>
+
+    <button type="button" class="camera-shutter-btn" id="btnCameraShutter" title="Capture Photo">
+      <div class="shutter-inner"></div>
+    </button>
+
+    <button type="button" class="camera-upload-btn" id="btnCameraUploadFile" title="Upload from Device">
+      <span>📁 Upload</span>
+    </button>
+    <input type="file" id="fsCameraFileInput" accept="image/*" style="display:none;">
+  </div>
+</div>
+
+<!-- MODAL: Lightbox for High-Resolution Page Inspection -->
+<div id="pageLightboxModal" class="lightbox-overlay" style="display:none;">
+  <button type="button" class="lightbox-close-btn" id="btnCloseLightbox">✕</button>
+  <div class="lightbox-content">
+    <img id="lightboxImg" src="" alt="Enlarged Page Scan">
+    <div id="lightboxCaption" class="lightbox-caption"></div>
+  </div>
+</div>
+
+</body>
+</html>
