@@ -2282,3 +2282,311 @@ body {
   background: rgba(255, 255, 255, 0.4);
   transform: scale(1.08);
 }
+
+/* ==========================================================================
+   Scan Hub (4-Way Dedicated Scanning System) Styles
+   ========================================================================== */
+
+.scan-hub-overlay {
+  align-items: center;
+  justify-content: center;
+}
+
+.scan-hub-card {
+  width: 100%;
+  max-width: 680px;
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  overflow: hidden;
+  animation: hubSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes hubSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.scan-hub-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-color);
+  background: #f8fafc;
+}
+
+.scan-hub-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.btn-hub-back {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-hub-back:hover {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+}
+
+.scan-hub-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.scan-hub-subtitle {
+  margin: 2px 0 0 0;
+  font-size: 0.82rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.scan-hub-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.scan-methods-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 640px) {
+  .scan-methods-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.scan-method-card {
+  position: relative;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.scan-method-card:hover {
+  transform: translateY(-2px);
+  border-color: #38bdf8;
+  box-shadow: 0 10px 25px rgba(56, 189, 248, 0.15);
+}
+
+.method-card-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.method-card-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.bg-cyan {
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+  color: #ffffff;
+}
+
+.bg-orange {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: #ffffff;
+}
+
+.method-card-content {
+  flex: 1;
+}
+
+.method-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 2px;
+}
+
+.method-card-title-row h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.method-tag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.method-tag.purple { background: #f3e8ff; color: #7e22ce; }
+.method-tag.orange { background: #ffedd5; color: #c2410c; }
+.method-tag.green { background: #dcfce7; color: #15803d; }
+
+.method-card-ar {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #334155;
+  margin: 2px 0 6px 0;
+}
+
+.method-card-content p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+.method-card-action {
+  margin-top: auto;
+  padding-top: 6px;
+}
+
+.btn-block {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Manual Section inside Scan Hub */
+.scan-hub-manual-section {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.manual-section-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+/* Dedicated Barcode Page (Way 1) */
+.barcode-viewport-container {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  background: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.barcode-scanner-box {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.barcode-scanner-box video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+.barcode-target-reticle {
+  position: absolute;
+  width: 82vw;
+  max-width: 360px;
+  height: 220px;
+  border: 2px solid rgba(56, 189, 248, 0.8);
+  border-radius: 16px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.65);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.barcode-laser-line {
+  position: absolute;
+  width: 90%;
+  height: 2.5px;
+  background: #ef4444;
+  box-shadow: 0 0 12px #ef4444, 0 0 4px #fff;
+  border-radius: 2px;
+  animation: barcodeLaserSweep 1.8s infinite ease-in-out alternate;
+}
+
+@keyframes barcodeLaserSweep {
+  0% { transform: translateY(-75px); }
+  100% { transform: translateY(75px); }
+}
+
+.barcode-bottom-bar {
+  justify-content: center !important;
+  padding-bottom: 30px !important;
+}
+
+.camera-mode-title {
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 800;
+  background: rgba(15, 23, 42, 0.8);
+  padding: 6px 14px;
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Mobile full-screen scan hub */
+@media (max-width: 768px) {
+  .scan-hub-card {
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+    margin: 0;
+  }
+  .scan-hub-body {
+    padding: 16px;
+    gap: 14px;
+  }
+}

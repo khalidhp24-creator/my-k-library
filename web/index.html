@@ -512,38 +512,112 @@
   </div>
 </div>
 
-<!-- MODAL 2: Camera Scanner & Auto-Lookup Modal -->
-<div class="modal-overlay" id="scannerModal" style="display:none;">
-  <div class="modal-card scanner-card">
-    <div class="modal-header">
-      <h3>📷 Barcode Scanner & ISBN Auto-Fill</h3>
-      <button class="modal-close-btn" id="scannerCloseBtn">&times;</button>
-    </div>
-    
-    <div class="modal-body">
-      <!-- Live Camera Viewport -->
-      <div class="camera-viewport-container">
-        <div id="interactiveScanner" class="scanner-viewport"></div>
-        <div class="scanner-status-badge" id="scannerCameraStatus">Camera initializing...</div>
-        <div class="camera-controls-bar">
-          <button type="button" class="btn btn-warning btn-sm" id="btnScanCoverAi" title="Open full-screen camera to scan book cover">
-            <span>📷</span> Fullscreen Cover AI
-          </button>
-          <button type="button" class="btn btn-warning btn-sm" id="btnScanBackAi" title="Open full-screen camera to scan back cover & summary">
-            <span>📄</span> Back-Cover AI
-          </button>
-          <button type="button" class="btn btn-outline btn-sm" id="btnUploadCoverAi" title="Upload a cover photo">
-            <span>📁</span> Upload
-          </button>
-          <input type="file" id="coverFileInput" accept="image/*" style="display:none;">
+<!-- =========================================================================
+     MODAL 2: THE SCAN HUB (4-Way Modular Scanner Gateway)
+     Separates the scan algorithm into 4 dedicated, distraction-free experiences
+     ========================================================================= -->
+<div class="modal-overlay scan-hub-overlay" id="scanHubModal" style="display:none;">
+  <div class="modal-card scan-hub-card">
+    <div class="scan-hub-header">
+      <div class="scan-hub-title-wrap">
+        <button type="button" class="btn-hub-back" id="btnHubBack" title="Close Scan Hub">←</button>
+        <div>
+          <h3>Scan a Book (مسح كتاب)</h3>
+          <p class="scan-hub-subtitle">Choose a dedicated scanning method / اختر طريقة المسح</p>
         </div>
       </div>
+      <button class="modal-close-btn" id="scanHubCloseBtn">&times;</button>
+    </div>
 
-      <!-- Manual Input Option -->
-      <div class="scanner-input-section">
-        <label for="scanInputISBN">Or type / paste ISBN or Market Barcode (Egypt 622...):</label>
+    <div class="scan-hub-body">
+      <!-- 4-Part Dedicated Scanner Cards -->
+      <div class="scan-methods-grid">
+        
+        <!-- Method 1: Barcode / ISBN Scan -->
+        <div class="scan-method-card" id="cardLaunchBarcode" data-mode="barcode">
+          <div class="method-card-badge">Way 1</div>
+          <div class="method-card-icon-wrap bg-cyan">
+            <span class="method-icon">📟</span>
+          </div>
+          <div class="method-card-content">
+            <div class="method-card-title-row">
+              <h4>1. Barcode & ISBN Scanner</h4>
+              <span class="method-tag">Instant Auto-Lookup</span>
+            </div>
+            <div class="method-card-ar">مسح الباركود السريع والكود المصري</div>
+            <p>Fast live barcode scanner for international ISBNs (978...) and Egyptian commercial barcodes (622...). Instantly detects and queries book info.</p>
+          </div>
+          <div class="method-card-action">
+            <button type="button" class="btn btn-primary btn-sm btn-block">Open Barcode Scanner 🚀</button>
+          </div>
+        </div>
+
+        <!-- Method 2: AI Front Cover Scan -->
+        <div class="scan-method-card" id="cardLaunchFrontCover" data-mode="front">
+          <div class="method-card-badge">Way 2</div>
+          <div class="method-card-icon-wrap bg-purple">
+            <span class="method-icon">📖</span>
+          </div>
+          <div class="method-card-content">
+            <div class="method-card-title-row">
+              <h4>2. AI Front Cover Scan</h4>
+              <span class="method-tag purple">Gemini AI Vision</span>
+            </div>
+            <div class="method-card-ar">مسح الغلاف الأمامي بالذكاء الاصطناعي</div>
+            <p>Full-screen cover camera. Gemini AI analyzes title typography and artwork to extract Title, Author, Publisher & Category in Arabic.</p>
+          </div>
+          <div class="method-card-action">
+            <button type="button" class="btn btn-warning btn-sm btn-block">Scan Front Cover 📸</button>
+          </div>
+        </div>
+
+        <!-- Method 3: AI Back Cover & Blurb Scan -->
+        <div class="scan-method-card" id="cardLaunchBackCover" data-mode="back">
+          <div class="method-card-badge">Way 3</div>
+          <div class="method-card-icon-wrap bg-orange">
+            <span class="method-icon">📄</span>
+          </div>
+          <div class="method-card-content">
+            <div class="method-card-title-row">
+              <h4>3. AI Back Cover & Blurb</h4>
+              <span class="method-tag orange">Synopsis & Pricing</span>
+            </div>
+            <div class="method-card-ar">مسح الغلاف الخلفي والنبذة والباركود</div>
+            <p>Point camera at the rear cover. Gemini AI reads the back-cover barcode, extracts full Arabic synopsis/blurb, price, and publisher.</p>
+          </div>
+          <div class="method-card-action">
+            <button type="button" class="btn btn-warning btn-sm btn-block" style="background:#ea580c; border-color:#c2410c;">Scan Back Cover 📄</button>
+          </div>
+        </div>
+
+        <!-- Method 4: Multi-Page & Index Scanner -->
+        <div class="scan-method-card" id="cardLaunchMultiPage" data-mode="page">
+          <div class="method-card-badge">Way 4</div>
+          <div class="method-card-icon-wrap bg-green">
+            <span class="method-icon">📑</span>
+          </div>
+          <div class="method-card-content">
+            <div class="method-card-title-row">
+              <h4>4. Multi-Page & Index Scanner</h4>
+              <span class="method-tag green">Continuous Gallery</span>
+            </div>
+            <div class="method-card-ar">مسح صفحات وفهرس الكتاب المتعددة</div>
+            <p>Continuous document scanner for Table of Contents, index, introduction, or sample plates. Snap multiple pages in one session.</p>
+          </div>
+          <div class="method-card-action">
+            <button type="button" class="btn btn-success btn-sm btn-block">Start Multi-Page Scan 📑</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Manual Barcode Input Section -->
+      <div class="scan-hub-manual-section">
+        <div class="manual-section-title">
+          <span>⌨️ Or type / paste ISBN or Market Barcode:</span>
+        </div>
         <div class="input-action-group">
-          <input type="text" id="scanInputISBN" class="form-control" placeholder="Scan or enter ISBN / Barcode (e.g. 978... or 622...)">
+          <input type="text" id="scanInputISBN" class="form-control" placeholder="e.g. 9780132465403 or Egypt 622...">
           <button class="btn btn-success" id="btnTriggerGoogleLookup">🔍 Google Lookup</button>
           <button class="btn btn-purple" id="btnTriggerAiLookup">🤖 Gemini AI</button>
         </div>
@@ -554,6 +628,101 @@
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL: Dedicated Barcode Camera Page (Way 1)
+     ========================================================================= -->
+<div id="barcodeCameraPage" class="fullscreen-camera-overlay" style="display:none;">
+  <div class="camera-header-bar">
+    <button type="button" class="btn-cam-icon" id="btnCloseBarcodeCam" title="Back to Scan Hub">←</button>
+    <div class="camera-mode-title">📟 Barcode / ISBN Scanner</div>
+    <div class="camera-header-actions">
+      <button type="button" class="btn-cam-icon" id="btnBarcodeTorch" title="Toggle Flashlight" style="display:none;">⚡</button>
+    </div>
+  </div>
+
+  <div class="barcode-viewport-container">
+    <div id="interactiveScanner" class="barcode-scanner-box"></div>
+    <div class="barcode-target-reticle">
+      <div class="barcode-laser-line"></div>
+      <div class="reticle-label">Align Barcode or ISBN inside box (978... or 622...)</div>
+    </div>
+  </div>
+
+  <div class="camera-bottom-bar barcode-bottom-bar">
+    <button type="button" class="camera-upload-btn" id="btnBarcodeManualFallback">
+      <span>⌨️ Enter Code Manually</span>
+    </button>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL: Dedicated AI Camera Viewfinder (Ways 2, 3, 4)
+     Front Cover, Back Cover & Blurb, and Multi-Page Document Scanner
+     ========================================================================= -->
+<div id="fullscreenCameraModal" class="fullscreen-camera-overlay" style="display:none;">
+  <video id="fullscreenVideo" autoplay playsinline muted></video>
+  <canvas id="fullscreenCanvas" style="display:none;"></canvas>
+
+  <!-- Framing guide & reticle -->
+  <div class="camera-reticle-wrap">
+    <div class="camera-reticle-box" id="cameraReticleBox">
+      <div class="reticle-corner top-left"></div>
+      <div class="reticle-corner top-right"></div>
+      <div class="reticle-corner bottom-left"></div>
+      <div class="reticle-corner bottom-right"></div>
+      <div class="reticle-label" id="cameraReticleLabel">Align Book within Frame</div>
+    </div>
+  </div>
+
+  <!-- Top Glassmorphic Navigation -->
+  <div class="camera-header-bar">
+    <button type="button" class="btn-cam-icon" id="btnCloseFullscreenCam" title="Back to Scan Hub">←</button>
+    <div class="camera-mode-title" id="cameraModeTitle">AI Book Scanner</div>
+    <div class="camera-header-actions">
+      <button type="button" class="btn-cam-icon" id="btnToggleTorch" title="Toggle Flashlight">⚡</button>
+      <button type="button" class="btn-cam-icon" id="btnFlipCamera" title="Flip Camera">🔄</button>
+    </div>
+  </div>
+
+  <!-- Realtime Status Overlay -->
+  <div class="camera-status-overlay" id="cameraProcessingOverlay" style="display:none;">
+    <div class="camera-spinner"></div>
+    <div class="camera-status-text" id="cameraProcessingText">جاري المعالجة بالذكاء الاصطناعي...</div>
+  </div>
+
+  <!-- Bottom Control Bar -->
+  <div class="camera-bottom-bar" id="cameraBottomBar">
+    <button type="button" class="camera-gallery-pill" id="btnViewScannedGallery" title="View Scanned Pages" style="display:none;">
+      <span class="gallery-icon">📑</span>
+      <span id="scannedPagesBadge">0 Pages</span>
+    </button>
+
+    <button type="button" class="camera-shutter-btn" id="btnCameraShutter" title="Capture Photo">
+      <div class="shutter-inner"></div>
+    </button>
+
+    <button type="button" class="camera-upload-btn" id="btnCameraUploadFile" title="Upload from Device">
+      <span>📁 Upload</span>
+    </button>
+    <input type="file" id="fsCameraFileInput" accept="image/*" style="display:none;">
+
+    <button type="button" class="btn btn-success btn-sm" id="btnDoneMultiPage" style="display:none; border-radius:24px; padding:10px 18px; font-weight:700;">
+      ✅ Done (<span id="donePagesCount">0</span>)
+    </button>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL: Lightbox for High-Resolution Page Inspection
+     ========================================================================= -->
+<div id="pageLightboxModal" class="lightbox-overlay" style="display:none;">
+  <button type="button" class="lightbox-close-btn" id="btnCloseLightbox">✕</button>
+  <div class="lightbox-content">
+    <img id="lightboxImg" src="" alt="Enlarged Page Scan">
+    <div id="lightboxCaption" class="lightbox-caption"></div>
   </div>
 </div>
 
@@ -575,71 +744,6 @@
 </div>
 
 <script src="app.js"></script>
-
-<!-- MODAL: Full-Screen Camera Viewfinder for Cover & Multi-Page Scanning -->
-<div id="fullscreenCameraModal" class="fullscreen-camera-overlay" style="display:none;">
-  <video id="fullscreenVideo" autoplay playsinline muted></video>
-  <canvas id="fullscreenCanvas" style="display:none;"></canvas>
-
-  <!-- Framing guide & reticle -->
-  <div class="camera-reticle-wrap">
-    <div class="camera-reticle-box">
-      <div class="reticle-corner top-left"></div>
-      <div class="reticle-corner top-right"></div>
-      <div class="reticle-corner bottom-left"></div>
-      <div class="reticle-corner bottom-right"></div>
-      <div class="reticle-label" id="cameraReticleLabel">📖 وجه الكاميرا نحو الغلاف / Align Book within Frame</div>
-    </div>
-  </div>
-
-  <!-- Top Glassmorphic Navigation -->
-  <div class="camera-header-bar">
-    <button type="button" class="btn-cam-icon" id="btnCloseFullscreenCam" title="Close Camera">✕</button>
-    
-    <div class="camera-mode-switcher">
-      <button type="button" class="cam-mode-btn active" data-mode="front" id="btnModeFront">📖 Front Cover</button>
-      <button type="button" class="cam-mode-btn" data-mode="back" id="btnModeBack">📄 Back Cover</button>
-      <button type="button" class="cam-mode-btn" data-mode="page" id="btnModePage">📑 Page Scan</button>
-    </div>
-
-    <div class="camera-header-actions">
-      <button type="button" class="btn-cam-icon" id="btnToggleTorch" title="Toggle Flashlight">⚡</button>
-      <button type="button" class="btn-cam-icon" id="btnFlipCamera" title="Flip Camera">🔄</button>
-    </div>
-  </div>
-
-  <!-- Realtime Status Overlay -->
-  <div class="camera-status-overlay" id="cameraProcessingOverlay" style="display:none;">
-    <div class="camera-spinner"></div>
-    <div class="camera-status-text" id="cameraProcessingText">جاري تحليل الغلاف بالذكاء الاصطناعي...</div>
-  </div>
-
-  <!-- Bottom Glassmorphic Control Bar -->
-  <div class="camera-bottom-bar">
-    <button type="button" class="camera-gallery-pill" id="btnViewScannedGallery" title="View Scanned Pages">
-      <span class="gallery-icon">📑</span>
-      <span id="scannedPagesBadge">0 Pages</span>
-    </button>
-
-    <button type="button" class="camera-shutter-btn" id="btnCameraShutter" title="Capture Photo">
-      <div class="shutter-inner"></div>
-    </button>
-
-    <button type="button" class="camera-upload-btn" id="btnCameraUploadFile" title="Upload from Device">
-      <span>📁 Upload</span>
-    </button>
-    <input type="file" id="fsCameraFileInput" accept="image/*" style="display:none;">
-  </div>
-</div>
-
-<!-- MODAL: Lightbox for High-Resolution Page Inspection -->
-<div id="pageLightboxModal" class="lightbox-overlay" style="display:none;">
-  <button type="button" class="lightbox-close-btn" id="btnCloseLightbox">✕</button>
-  <div class="lightbox-content">
-    <img id="lightboxImg" src="" alt="Enlarged Page Scan">
-    <div id="lightboxCaption" class="lightbox-caption"></div>
-  </div>
-</div>
 
 </body>
 </html>

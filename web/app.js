@@ -650,9 +650,40 @@ function setupEventListeners() {
   document.getElementById("btnEmptyAdd").onclick = openAddBookModal;
   document.getElementById("navMobileAdd").onclick = openAddBookModal;
 
-  document.getElementById("btnTopScan").onclick = openScannerModal;
-  document.getElementById("btnSidebarScan").onclick = openScannerModal;
-  document.getElementById("navMobileScan").onclick = openScannerModal;
+  document.getElementById("btnTopScan").onclick = openScanHub;
+  document.getElementById("btnSidebarScan").onclick = openScanHub;
+  document.getElementById("navMobileScan").onclick = openScanHub;
+
+  // Scan Hub Navigation & 4 Dedicated Methods
+  const btnHubBack = document.getElementById("btnHubBack");
+  if (btnHubBack) btnHubBack.onclick = closeScanHub;
+  const scanHubCloseBtn = document.getElementById("scanHubCloseBtn");
+  if (scanHubCloseBtn) scanHubCloseBtn.onclick = closeScanHub;
+
+  const cardLaunchBarcode = document.getElementById("cardLaunchBarcode");
+  if (cardLaunchBarcode) cardLaunchBarcode.onclick = launchBarcodeScanner;
+
+  const cardLaunchFrontCover = document.getElementById("cardLaunchFrontCover");
+  if (cardLaunchFrontCover) cardLaunchFrontCover.onclick = () => launchDedicatedAiCamera("front");
+
+  const cardLaunchBackCover = document.getElementById("cardLaunchBackCover");
+  if (cardLaunchBackCover) cardLaunchBackCover.onclick = () => launchDedicatedAiCamera("back");
+
+  const cardLaunchMultiPage = document.getElementById("cardLaunchMultiPage");
+  if (cardLaunchMultiPage) cardLaunchMultiPage.onclick = () => launchDedicatedAiCamera("page");
+
+  // Barcode Camera Controls (Way 1)
+  const btnCloseBarcodeCam = document.getElementById("btnCloseBarcodeCam");
+  if (btnCloseBarcodeCam) btnCloseBarcodeCam.onclick = closeBarcodeScanner;
+
+  const btnBarcodeManualFallback = document.getElementById("btnBarcodeManualFallback");
+  if (btnBarcodeManualFallback) {
+    btnBarcodeManualFallback.onclick = () => {
+      closeBarcodeScanner();
+      const input = document.getElementById("scanInputISBN");
+      if (input) input.focus();
+    };
+  }
 
   document.getElementById("btnSidebarLibraries").onclick = openLibrariesModal;
   document.getElementById("navMobileLibs").onclick = openLibrariesModal;
@@ -660,7 +691,7 @@ function setupEventListeners() {
   // Modal close triggers
   document.getElementById("modalCloseBtn").onclick = closeBookModal;
   document.getElementById("modalCancelBtn").onclick = closeBookModal;
-  document.getElementById("scannerCloseBtn").onclick = closeScannerModal;
+  // scannerCloseBtn replaced by scanHubCloseBtn
   document.getElementById("librariesCloseBtn").onclick = closeLibrariesModal;
 
   // Form tab switching inside Book Modal
@@ -809,6 +840,9 @@ function setupEventListeners() {
   }
 
   // Fullscreen Camera Controls
+  const btnDoneMultiPage = document.getElementById("btnDoneMultiPage");
+  if (btnDoneMultiPage) btnDoneMultiPage.onclick = finishMultiPageScan;
+
   const btnCloseFullscreenCam = document.getElementById("btnCloseFullscreenCam");
   if (btnCloseFullscreenCam) btnCloseFullscreenCam.onclick = closeFullscreenCamera;
 
@@ -1187,60 +1221,111 @@ window.deleteBook = async function(id, title) {
 // ============================================================================
 // Camera Scanner & Auto-Fill
 // ============================================================================
-function openScannerModal() {
-  document.getElementById("scanInputISBN").value = "";
-  document.getElementById("lookupFeedback").textContent = "";
-  scannerModal.style.display = "flex";
-  startCameraScanner();
+// ============================================================================
+// SCAN HUB CONTROLLER (4-Part Modular Architecture)
+// ============================================================================
+function openScanHub() {
+  const modal = document.getElementById("scanHubModal");
+  if (modal) {
+    document.getElementById("scanInputISBN").value = "";
+    document.getElementById("lookupFeedback").textContent = "";
+    const warning = document.getElementById("aiWarningBanner");
+    if (warning) warning.style.display = "none";
+    modal.style.display = "flex";
+  }
 }
 
+function closeScanHub() {
+  const modal = document.getElementById('scanHubModal');
+  if (modal) modal.style.display = 'none';
+}
 function closeScannerModal() {
-  stopCameraScanner();
-  scannerModal.style.display = "none";
+  closeScanHub();
+
+  const modal = document.getElementById("scanHubModal");
+  if (modal) modal.style.display = "none";
 }
 
-function startCameraScanner() {
-  const statusEl = document.getElementById("scannerCameraStatus");
-  statusEl.textContent = "Requesting camera stream...";
+// ----------------------------------------------------------------------------
+// Dedicated Method 1: Barcode / ISBN Scanner (Way 1)
+// ----------------------------------------------------------------------------
+function launchBarcodeScanner() {
+  closeScanHub();
+  const page = document.getElementById("barcodeCameraPage");
+  if (page) page.style.display = "flex";
+  startHtml5BarcodeScanner();
+}
 
+function closeBarcodeScanner() {
+  stopHtml5BarcodeScanner();
+  const page = document.getElementById("barcodeCameraPage");
+  if (page) page.style.display = "none";
+  openScanHub();
+}
+
+function startHtml5BarcodeScanner() {
   if (!window.Html5Qrcode) {
-    statusEl.textContent = "Barcode library loading...";
+    alert("Barcode scanner library is loading, please wait...");
     return;
   }
+  stopHtml5BarcodeScanner();
 
   html5QrScanner = new Html5Qrcode("interactiveScanner");
-  const config = { fps: 10, qrbox: { width: 250, height: 160 } };
+  const config = { fps: 15, qrbox: { width: 280, height: 160 } };
 
   html5QrScanner.start(
     { facingMode: "environment" },
     config,
     (decodedText) => {
-      // Audio feedback
       beep();
-      statusEl.textContent = `Scanned ISBN: ${decodedText}!`;
+      stopHtml5BarcodeScanner();
+      const page = document.getElementById("barcodeCameraPage");
+      if (page) page.style.display = "none";
+
+      // Show instant notification & auto lookup
       document.getElementById("scanInputISBN").value = decodedText;
-      stopCameraScanner();
       performGoogleLookup(decodedText);
     },
     (errorMessage) => {
-      // Periodic scanning attempt callback
+      // scanning frames callback
     }
   ).then(() => {
-    statusEl.textContent = "Camera active: Align barcode inside frame";
+    // Check if torch is supported on barcode stream
+    const btnTorch = document.getElementById("btnBarcodeTorch");
+    try {
+      const video = document.querySelector("#interactiveScanner video");
+      if (video && video.srcObject) {
+        const track = video.srcObject.getVideoTracks()[0];
+        const caps = track.getCapabilities ? track.getCapabilities() : {};
+        if (btnTorch && caps.torch) {
+          btnTorch.style.display = "flex";
+          btnTorch.onclick = async () => {
+            fsIsTorchOn = !fsIsTorchOn;
+            await track.applyConstraints({ advanced: [{ torch: fsIsTorchOn }] });
+            btnTorch.style.color = fsIsTorchOn ? "#facc15" : "#ffffff";
+          };
+        }
+      }
+    } catch(e) {}
   }).catch((err) => {
-    statusEl.textContent = "Camera not available or permission denied";
-    console.warn("Camera init failed:", err);
+    console.warn("Barcode camera failed:", err);
+    alert("Camera permission denied or camera not available.\nYou can type the barcode manually.");
+    closeBarcodeScanner();
   });
 }
 
-function stopCameraScanner() {
+function stopHtml5BarcodeScanner() {
   if (html5QrScanner) {
-    html5QrScanner.stop().then(() => {
-      html5QrScanner.clear();
+    try {
+      html5QrScanner.stop().then(() => {
+        html5QrScanner.clear();
+        html5QrScanner = null;
+      }).catch(() => {
+        html5QrScanner = null;
+      });
+    } catch (e) {
       html5QrScanner = null;
-    }).catch(() => {
-      html5QrScanner = null;
-    });
+    }
   }
 }
 
@@ -1787,14 +1872,61 @@ function closeLightbox() {
 // ============================================================================
 // Full-Screen Camera Viewfinder Controller
 // ============================================================================
-async function openFullscreenCamera(mode = "front") {
+async function launchDedicatedAiCamera(mode = "front") {
+  closeScanHub();
   fsActiveMode = mode;
-  updateCameraModeUI();
 
   const modal = document.getElementById("fullscreenCameraModal");
-  if (modal) modal.style.display = "flex";
+  const titleEl = document.getElementById("cameraModeTitle");
+  const reticleLabel = document.getElementById("cameraReticleLabel");
+  const btnViewGallery = document.getElementById("btnViewScannedGallery");
+  const btnDone = document.getElementById("btnDoneMultiPage");
+  const btnUpload = document.getElementById("btnCameraUploadFile");
 
+  if (mode === "front") {
+    if (titleEl) titleEl.textContent = "📖 Front Cover Scan (مسح الغلاف الأمامي)";
+    if (reticleLabel) reticleLabel.textContent = "📖 وجه الكاميرا نحو الغلاف الأمامي / Align Front Cover";
+    if (btnViewGallery) btnViewGallery.style.display = "none";
+    if (btnDone) btnDone.style.display = "none";
+    if (btnUpload) btnUpload.style.display = "flex";
+  } else if (mode === "back") {
+    if (titleEl) titleEl.textContent = "📄 Back Cover & Blurb (مسح الغلاف الخلفي والنبذة)";
+    if (reticleLabel) reticleLabel.textContent = "📄 وجه الكاميرا نحو الغلاف الخلفي والنبذة / Align Back Cover";
+    if (btnViewGallery) btnViewGallery.style.display = "none";
+    if (btnDone) btnDone.style.display = "none";
+    if (btnUpload) btnUpload.style.display = "flex";
+  } else {
+    // page mode
+    if (titleEl) titleEl.textContent = "📑 Multi-Page Scanner (مسح صفحات وفهرس الكتاب)";
+    if (reticleLabel) reticleLabel.textContent = "📑 وجه الكاميرا نحو الصفحة / Align Page within Frame";
+    if (btnViewGallery) btnViewGallery.style.display = "flex";
+    if (btnDone) {
+      btnDone.style.display = "inline-flex";
+      const countEl = document.getElementById("donePagesCount");
+      if (countEl) countEl.textContent = currentBookPages.length;
+    }
+    if (btnUpload) btnUpload.style.display = "flex";
+  }
+
+  if (modal) modal.style.display = "flex";
   await startFullscreenCameraStream();
+}
+
+// Backward compatible alias
+function openFullscreenCamera(mode = "front") {
+  return launchDedicatedAiCamera(mode);
+}
+
+function finishMultiPageScan() {
+  closeFullscreenCamera();
+  openAddBookModal();
+  document.querySelectorAll(".form-tabs .tab-btn").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  const tabMediaBtn = document.querySelector(".form-tabs .tab-btn[data-tab='tabMedia']");
+  if (tabMediaBtn) tabMediaBtn.classList.add("active");
+  const tabMediaPanel = document.getElementById("tabMedia");
+  if (tabMediaPanel) tabMediaPanel.classList.add("active");
+  renderScannedPagesGallery();
 }
 
 async function startFullscreenCameraStream() {
@@ -1833,7 +1965,7 @@ async function startFullscreenCameraStream() {
   }
 }
 
-function closeFullscreenCamera() {
+function closeFullscreenCamera(returnToHub = true) {
   if (fsCameraStream) {
     fsCameraStream.getTracks().forEach(t => t.stop());
     fsCameraStream = null;
@@ -1842,6 +1974,11 @@ function closeFullscreenCamera() {
   if (modal) modal.style.display = "none";
   const overlay = document.getElementById("cameraProcessingOverlay");
   if (overlay) overlay.style.display = "none";
+
+  const isBookModalOpen = bookModal && bookModal.style.display === "flex";
+  if (returnToHub && !isBookModalOpen) {
+    openScanHub();
+  }
 }
 
 function updateCameraModeUI() {
